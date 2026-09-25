@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+python-dotenv
+playwright
+groq
+httpx
+openai
+pytest
+pytest-asyncio
