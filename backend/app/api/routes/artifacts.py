@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 from app.artifacts.repository import ArtifactRepository
 from app.artifacts.validator import ArtifactValidator
+from app.artifacts.schema import CapabilityArtifact
+
 
 
 router = APIRouter(
@@ -216,3 +218,21 @@ async def list_artifacts():
                 "message": str(exc),
             },
         )
+
+
+
+@router.post("")
+async def create_artifact(request: ArtifactCreateRequest):
+    try:
+        artifact = CapabilityArtifact.model_validate(request.artifact)
+        validator.validate(artifact)
+        file_path = repository.save(artifact)
+
+        return {
+            "success": True,
+            "artifact_id": artifact.artifact_id,
+            "status": artifact.status.value,
+            "file": str(file_path),
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail={"error": "ARTIFACT_SAVE_FAILED", "message": str(exc)})
