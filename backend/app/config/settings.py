@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -29,6 +30,10 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def demo_app_domain(self) -> str:
+        return urlparse(self.demo_app_url).hostname or ""
 
 
 settings = Settings()
