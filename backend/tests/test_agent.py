@@ -53,7 +53,7 @@ async def test_agent_start():
         # Observation checks
         # ----------------------------------------------------
 
-        assert "url" in observation
+        assert "url" in observation["page"]
 
     finally:
 
