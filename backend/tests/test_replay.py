@@ -35,9 +35,7 @@ async def main():
 
     try:
 
-        artifact = repository.get(
-            ARTIFACT_ID
-        )
+        artifact = repository.load(ARTIFACT_ID)
 
     except Exception as exc:
 
