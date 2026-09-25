@@ -1,9 +1,8 @@
 import asyncio
 
 from app.safety.allowlist import AllowlistManager
-from app.safety.policy import SafetyPolicy
-from app.safety.redaction import redact
-
+from app.safety.policy import ActionPolicy
+from app.safety.redaction import redact_data
 
 # ============================================================
 # TEST ALLOWLIST
@@ -55,10 +54,7 @@ def test_allowlist():
     # --------------------------------------------------------
 
     try:
-
-        result = manager.is_allowed(
-            blocked_url
-        )
+        result = manager.is_allowed_url(allowed_url)      # was manager.is_allowed(...)
 
         print(
             f"\nBlocked URL: {blocked_url}"
@@ -91,8 +87,7 @@ def test_safety_policy():
     print("TEST: SAFETY POLICY")
     print("========================================")
 
-    policy = SafetyPolicy()
-
+    policy = ActionPolicy()                            # was SafetyPolicy()
     # --------------------------------------------------------
     # Safe action
     # --------------------------------------------------------
@@ -106,10 +101,7 @@ def test_safety_policy():
     }
 
     try:
-
-        result = policy.check(
-            safe_action
-        )
+        result = policy.validate({"type": "click", ...})   # was policy.check(...); pass a dict with "type", not "action
 
         print("\nSafe action:")
         print(result)
@@ -178,7 +170,7 @@ def test_redaction():
 
     try:
 
-        result = redact(data)
+        result = redact_data(data)                         # was redact(data)
 
         print("\nRedacted:")
         print(result)
