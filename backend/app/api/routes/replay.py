@@ -234,3 +234,5 @@ async def replay_artifact(
                 },
             },
         }
+     finally:
+        await engine.close()
