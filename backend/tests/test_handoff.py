@@ -5,9 +5,8 @@ from app.automation.session import (
     SessionStatus,
     ControlOwner,
 )
-from app.escalation.manager import EscalationManager
-from app.escalation.intervention import InterventionManager
-
+from app.escalation.manager import InterventionManager, EscalationManager
+from app.escalation.intervention import InterventionRequest, InterventionReason, InterventionStatus,
 
 # ============================================================
 # TEST 1: REQUEST HUMAN HANDOFF
