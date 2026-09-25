@@ -175,76 +175,30 @@ class GroqAgent:
                 # 2. PLAN
                 # ==============================================
 
-                action = self.plan(
-                    goal=goal,
-                    observation=observation,
-                )
+                                action = self.plan(goal=goal, observation=observation)
 
-                # Make sure planner returned a dictionary
-                if not isinstance(action, dict):
+                if not isinstance(action, PlannerResult) or not action.success:
+                    self.session.fail("Planner failed to produce a valid action.")
+                    return {"success": False, "status": "failed", "error": action.error if hasattr(action, "error") else "Planner failed."}
 
-                    self.session.fail(
-                        "Planner returned invalid action."
-                    )
+                planned = action.action  # PlannerAction
 
-                    return {
-                        "success": False,
-                        "status": "failed",
-                        "error": (
-                            "Planner returned invalid action."
-                        ),
-                    }
-
-                action_type = action.get("action")
-
-                # ==============================================
-                # 3. DONE
-                # ==============================================
-
-                if action_type == "done":
-
+                if planned.action == "goal_complete":
                     self.session.complete()
+                    return {"success": True, "status": "completed", "goal": goal, "action": planned.model_dump(), "session": self.get_status()}
 
-                    return {
-                        "success": True,
-                        "status": "completed",
-                        "goal": goal,
-                        "action": action,
-                        "session": self.get_status(),
-                    }
+                if planned.action == "escalate":
+                    reason = planned.reason
+                    self.session.request_human_control(reason=reason)
+                    return {"success": False, "status": "waiting_human", "goal": goal, "reason": reason, "action": planned.model_dump(), "session": self.get_status()}
 
-                # ==============================================
-                # 4. HUMAN HANDOFF
-                # ==============================================
+                executable_action = {
+                    "type": planned.action,
+                    "locator": planned.target.model_dump() if planned.target else {},
+                    "value": planned.value,
+                }
 
-                if action_type == "human_handoff":
-
-                    reason = action.get(
-                        "reason",
-                        "Agent requested human intervention.",
-                    )
-
-                    self.session.request_human_control(
-                        reason=reason
-                    )
-
-                    return {
-                        "success": False,
-                        "status": "waiting_human",
-                        "goal": goal,
-                        "reason": reason,
-                        "action": action,
-                        "session": self.get_status(),
-                    }
-
-                # ==============================================
-                # 5. EXECUTE
-                # ==============================================
-
-                result = await self.execute(
-                    action
-                )
-
+                result = await self.execute(executable_action)
                 # ==============================================
                 # 6. CHECK EXECUTION RESULT
                 # ==============================================
