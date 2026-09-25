@@ -8,6 +8,7 @@ from app.models.agent import (
     AgentRunResponse,
 )
 
+from app.api.routes.interventions import agents  # or move `agents` to a shared module, see note below
 
 # ============================================================
 # ROUTER
@@ -30,38 +31,12 @@ class AgentTestRequest(BaseModel):
 # ============================================================
 # START AGENT
 # ============================================================
-
 @router.post("/start")
-async def start_agent(
-    agent: GroqAgent = Depends(get_agent),
-):
-    """
-    Start the computer-use agent.
-
-    Flow:
-
-        API
-         ↓
-        GroqAgent
-         ↓
-        AutomationSession
-         ↓
-        BrowserManager
-         ↓
-        Playwright
-         ↓
-        PageObserver
-    """
-
+async def start_agent(agent: GroqAgent = Depends(get_agent)):
     try:
-
         observation = await agent.start()
-
-        return {
-            "success": True,
-            "session": agent.get_status(),
-            "observation": observation,
-        }
+        agents[agent.session.session_id] = agent
+        return {"success": True, "session": agent.get_status(), "observation": observation}
 
     except Exception as exc:
 
