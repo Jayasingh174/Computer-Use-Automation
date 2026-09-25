@@ -13,13 +13,8 @@ class ActionPolicy:
     Defines which computer-use actions are permitted.
     """
 
-    SAFE_ACTIONS = {
-        "click",
-        "type",
-        "navigate",
-        "read",
-        "wait",
-        "press",
+        SAFE_ACTIONS = {
+        "click", "fill", "navigate", "wait", "select", "press", "extract",
     }
 
     RISKY_ACTIONS = {
